@@ -13,10 +13,8 @@ logger = logging.getLogger()
 
 async def fetch_index(api_url: str) -> AsyncIterator[bytes]:
     async with AsyncExitStack() as stack:
-        client: httpx.AsyncClient = await stack.enter_async_context(httpx.AsyncClient())
-        response: httpx.Response = await stack.enter_async_context(
-            client.stream("GET", api_url)
-        )
+        client = await stack.enter_async_context(httpx.AsyncClient())
+        response = await stack.enter_async_context(client.stream("GET", api_url))
         response.raise_for_status()
         total_size = int(response.headers.get("Content-Length", 0))
         downloaded_size = 0

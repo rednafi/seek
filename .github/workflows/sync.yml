@@ -27,21 +27,19 @@ jobs:
           --url 'https://rednafi.com/index.json' --output 'data/index.json'
 
       - name: Check for changes
-        id: check_changes
+        id: git-check
         run: |
-          if git diff --exit-code > /dev/null; then
-            echo "No changes detected"
-            echo "changes_detected=false" >> $GITHUB_ENV
-          else
-            echo "Changes detected"
-            echo "changes_detected=true" >> $GITHUB_ENV
-          fi
+          git diff --exit-code || echo "changes_detected=true" >> $GITHUB_OUTPUT
 
       - name: Commit and push changes
-        if: env.changes_detected == 'true'
+        if: steps.git-check.outputs.changes_detected == 'true'
         run: |
           git config --local user.name "GitHub Actions"
           git config --local user.email "actions@github.com"
-          git add blog.json
-          git commit -m "Update blog.json"
+          git add data/index.json
+          git commit -m "Update index.json"
           git push
+
+      - name: Print no changes message
+        if: steps.git-check.outputs.changes_detected != 'true'
+        run: echo "No changes detected. Skipping commit."
