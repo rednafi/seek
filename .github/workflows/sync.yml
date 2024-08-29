@@ -35,6 +35,7 @@ jobs:
 
       - name: Push changes
         run: |
-          git push
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/rednafi/seek.git
+          git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
