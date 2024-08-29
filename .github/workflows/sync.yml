@@ -1,0 +1,45 @@
+name: Update Blog JSON
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # Run every 6 hours
+  workflow_dispatch:  # Allows manual trigger from the GitHub UI
+
+jobs:
+  update-blog-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install httpx
+
+      - name: Fetch and save blog JSON
+        run: python -m seek.main --url 'https://rednafi.com/index.json' --output 'data/index.json'
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --exit-code > /dev/null; then
+            echo "No changes detected"
+            echo "changes_detected=false" >> $GITHUB_ENV
+          else
+            echo "Changes detected"
+            echo "changes_detected=true" >> $GITHUB_ENV
+          fi
+
+      - name: Commit and push changes
+        if: env.changes_detected == 'true'
+        run: |
+          git config --local user.name "GitHub Actions"
+          git config --local user.email "actions@github.com"
+          git add blog.json
+          git commit -m "Update blog.json"
+          git push
