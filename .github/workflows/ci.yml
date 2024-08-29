@@ -1,5 +1,4 @@
 name: CI
-
 on:
   push:
   pull_request:
@@ -9,10 +8,12 @@ on:
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -21,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install uv
+          curl -LsSf https://astral.sh/uv/install.sh | sh
           uv sync
 
       - name: Lint check
@@ -31,3 +32,13 @@ jobs:
       - name: Run tests
         run: |
           .venv/bin/pytest -v
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Update from CI" || echo "No changes to commit"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
