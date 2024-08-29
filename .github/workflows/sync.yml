@@ -1,4 +1,4 @@
-name: Update Blog JSON
+name: Fetch Blog JSON
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:  # Allows manual trigger from the GitHub UI
 
 jobs:
-  update-blog-json:
+  fetch-blog-json:
     runs-on: ubuntu-latest
 
     steps:
