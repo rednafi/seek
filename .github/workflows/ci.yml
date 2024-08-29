@@ -27,12 +27,11 @@ jobs:
         run: |
           pip install uv
           uv sync
-          source .venv/bin/activate
 
       - name: Lint check
         run: |
-          ruff check .
+          .venv/bin/ruff check .
 
       - name: Run tests
         run: |
-          pytest -v
+          .venv/bin/pytest -v
