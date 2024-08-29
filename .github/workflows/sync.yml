@@ -34,11 +34,7 @@ jobs:
           git commit -m "Update from CI" || echo "No changes to commit"
 
       - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.ACCESS_TOKEN }}
-          branch: ${{ github.ref }}
-
-      - name: Print no changes message
-        if: steps.git-check.outputs.changes_detected == 'false'
-        run: echo "No changes detected. Skipping commit."
+        run: |
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
