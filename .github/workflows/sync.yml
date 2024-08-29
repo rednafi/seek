@@ -26,28 +26,18 @@ jobs:
           python -m scripts.sync \
           --url 'https://rednafi.com/index.json' --output 'data/index.json'
 
-      - name: Check for changes
-        id: git-check
+      - name: Commit changes
         run: |
-          if ! git ls-files --error-unmatch data/index.json > /dev/null 2>&1; then
-            echo "New file detected"
-            echo "changes_detected=true" >> $GITHUB_OUTPUT
-          elif ! git diff --exit-code data/index.json; then
-            echo "Changes detected in existing file"
-            echo "changes_detected=true" >> $GITHUB_OUTPUT
-          else
-            echo "No changes detected"
-            echo "changes_detected=false" >> $GITHUB_OUTPUT
-          fi
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Update from CI" || echo "No changes to commit"
 
-      - name: Commit and push changes
-        if: steps.git-check.outputs.changes_detected == 'true'
-        run: |
-          git config --local user.name "GitHub Actions"
-          git config --local user.email "actions@github.com"
-          git add data/index.json
-          git commit -m "Update index.json"
-          git push
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.ACCESS_TOKEN }}
+          branch: ${{ github.ref }}
 
       - name: Print no changes message
         if: steps.git-check.outputs.changes_detected == 'false'

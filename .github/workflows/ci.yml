@@ -32,13 +32,3 @@ jobs:
       - name: Run tests
         run: |
           .venv/bin/pytest -v
-
-      - name: Commit and push changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Update from CI" || echo "No changes to commit"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
