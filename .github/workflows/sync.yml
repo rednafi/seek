@@ -22,7 +22,9 @@ jobs:
         run: pip install httpx
 
       - name: Fetch and save blog JSON
-        run: python -m seek.main --url 'https://rednafi.com/index.json' --output 'data/index.json'
+        run: |
+          python -m scripts.sync \
+          --url 'https://rednafi.com/index.json' --output 'data/index.json'
 
       - name: Check for changes
         id: check_changes
