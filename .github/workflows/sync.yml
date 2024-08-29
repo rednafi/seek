@@ -33,9 +33,8 @@ jobs:
           git add .
           git commit -m "Update from CI" || echo "No changes to commit"
 
-      - name: Push changes
+     - name: Test pushing with debug info
         run: |
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/rednafi/seek.git
-          git push origin main
+          git push origin main -o trace
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
