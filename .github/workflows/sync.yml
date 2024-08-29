@@ -29,7 +29,16 @@ jobs:
       - name: Check for changes
         id: git-check
         run: |
-          git diff --exit-code || echo "changes_detected=true" >> $GITHUB_OUTPUT
+          if ! git ls-files --error-unmatch data/index.json > /dev/null 2>&1; then
+            echo "New file detected"
+            echo "changes_detected=true" >> $GITHUB_OUTPUT
+          elif ! git diff --exit-code data/index.json; then
+            echo "Changes detected in existing file"
+            echo "changes_detected=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changes detected"
+            echo "changes_detected=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Commit and push changes
         if: steps.git-check.outputs.changes_detected == 'true'
@@ -41,5 +50,5 @@ jobs:
           git push
 
       - name: Print no changes message
-        if: steps.git-check.outputs.changes_detected != 'true'
+        if: steps.git-check.outputs.changes_detected == 'false'
         run: echo "No changes detected. Skipping commit."
