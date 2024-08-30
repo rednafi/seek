@@ -1,10 +1,11 @@
 import json
+import socket
 import tempfile
 from collections.abc import Iterator
-from contextlib import ExitStack
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from threading import Event, Thread
+from typing import Iterator
 
 import pytest
 
@@ -24,22 +25,25 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
 @pytest.fixture(scope="module")
 def http_server() -> Iterator[HTTPServer]:
-    with ExitStack() as stack:
-        server = HTTPServer(("localhost", 8000), SimpleHTTPRequestHandler)
-        server_ready = Event()
+    server = HTTPServer(("localhost", 8000), SimpleHTTPRequestHandler)
+    server_ready = Event()
 
-        def start_server() -> None:
-            server_ready.set()
-            server.serve_forever()
+    def start_server() -> None:
+        server_ready.set()
+        server.serve_forever()
 
-        thread = stack.enter_context(Thread(target=start_server, daemon=True))
-        thread.start()
+    thread = Thread(target=start_server, daemon=True)
+    thread.start()
 
-        server_ready.wait()  # Ensure the server is fully started before yielding
+    server_ready.wait()
 
-        yield server
+    # Ensure the server is ready by attempting a connection
+    with socket.create_connection(("localhost", 8000), timeout=5):
+        pass
 
-        server.shutdown()
+    yield server
+
+    server.shutdown()
 
 
 async def test_main(http_server) -> None:
