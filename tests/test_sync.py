@@ -1,15 +1,18 @@
-import pytest
-import tempfile
 import json
-from pathlib import Path
+import tempfile
+from collections.abc import Iterator
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from pathlib import Path
 from threading import Thread
+
+import pytest
+
 from scripts.sync import main
 
 
 # Simple HTTP server to serve test data
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
+    def do_GET(self) -> None:
         content = b'{"key": "value"}'
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
@@ -19,7 +22,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
 
 @pytest.fixture(scope="module")
-def http_server():
+def http_server() -> Iterator[HTTPServer]:
     server = HTTPServer(("localhost", 8000), SimpleHTTPRequestHandler)
     thread = Thread(target=server.serve_forever)
     thread.daemon = True
@@ -28,7 +31,7 @@ def http_server():
     server.shutdown()
 
 
-async def test_main(http_server):
+async def test_main(http_server) -> None:
     api_url = "http://localhost:8000/"
 
     with tempfile.NamedTemporaryFile(suffix=".json") as temp_file:

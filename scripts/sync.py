@@ -1,10 +1,11 @@
-import httpx
+import argparse
 import asyncio
+import logging
 from contextlib import AsyncExitStack
 from pathlib import Path
 from typing import AsyncIterator
-import argparse
-import logging
+
+import httpx
 
 # Configure logging to remove the default `__main__` logger name
 logging.basicConfig(level=logging.INFO, format="%(message)s")
