@@ -1,11 +1,10 @@
 import json
 import tempfile
-import threading
 from collections.abc import Iterator
 from contextlib import ExitStack
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from threading import Thread
+from threading import Event, Thread
 from typing import Iterator
 
 import pytest
@@ -28,13 +27,13 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 def http_server() -> Iterator[HTTPServer]:
     with ExitStack() as stack:
         server = HTTPServer(("localhost", 8000), SimpleHTTPRequestHandler)
-        server_ready = threading.Event()
+        server_ready = Event()
 
         def start_server():
             server_ready.set()
             server.serve_forever()
 
-        thread = stack.enter_context(threading.Thread(target=start_server, daemon=True))
+        thread = stack.enter_context(Thread(target=start_server, daemon=True))
         thread.start()
 
         server_ready.wait()  # Ensure the server is fully started before yielding
