@@ -5,7 +5,6 @@ from contextlib import ExitStack
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from threading import Event, Thread
-from typing import Iterator
 
 import pytest
 
@@ -29,7 +28,7 @@ def http_server() -> Iterator[HTTPServer]:
         server = HTTPServer(("localhost", 8000), SimpleHTTPRequestHandler)
         server_ready = Event()
 
-        def start_server():
+        def start_server() -> None:
             server_ready.set()
             server.serve_forever()
 

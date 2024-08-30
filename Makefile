@@ -3,6 +3,7 @@
 lint:
 	@echo "Running linter"
 	@ruff check --select I --fix .
+	@ruff format .
 
 mypy:
 	@echo "Running mypy"
